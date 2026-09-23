@@ -55,6 +55,11 @@ poor fit for that and a good fit for this — so the two together are the honest
    `restartPolicyType: NEVER` matters for the same reason: a cron job that finishes its work and
    exits 0 has succeeded, and restarting it would turn a ten-minute schedule into a hot loop.
 
+   **Set the cron schedule in the dashboard as well.** `cronSchedule` is a documented `deploy`
+   field — it is in Railway's own `railway.schema.json` — but declaring it here did not take
+   effect on first deploy (observed 2026-09-23); the schedule had to be entered by hand. It is
+   left in the file because it is valid, and because if it starts working the two agree.
+
    Without the Telegram variables it still runs and logs what it *would* have said, which is a
    reasonable way to watch it work before wiring the alerts up.
 
