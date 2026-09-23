@@ -41,11 +41,19 @@ poor fit for that and a good fit for this — so the two together are the honest
 
 4. **Settings → Networking → Generate Domain.** The healthcheck at `/healthz` is already wired in
    `railway.json`.
-5. **Add a second service** from the same repo for the alerting cron:
-   - **Settings → Deploy → Start Command:** `python -m watch.cron`
-   - **Settings → Cron Schedule:** `*/10 * * * *`
+5. **Add a second service** from the same repo for the alerting cron. The start command and
+   schedule come from `railway.cron.json`, not from the dashboard:
+   - **Settings → Config-as-code:** set the path to `railway.cron.json`
    - Variables: `DATABASE_URL` (same reference), `SILENT_AFTER_S`, plus `TELEGRAM_BOT_TOKEN` and
      `TELEGRAM_CHAT_ID` — the same bot MT already uses.
+
+   Two config files rather than dashboard settings, because **config defined in code always
+   overrides the dashboard**. Both services build from one repo, so without a second file the
+   cron service would inherit `railway.json` — it would run `uvicorn` instead of the checker,
+   and then fail a healthcheck written for a process that is supposed to exit.
+
+   `restartPolicyType: NEVER` matters for the same reason: a cron job that finishes its work and
+   exits 0 has succeeded, and restarting it would turn a ten-minute schedule into a hot loop.
 
    Without the Telegram variables it still runs and logs what it *would* have said, which is a
    reasonable way to watch it work before wiring the alerts up.
